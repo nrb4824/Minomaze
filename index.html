@@ -11,16 +11,29 @@
 <body>
 
 <header>
-    <h1>Welcome to My GitHub Page</h1>
+    <h1>Minomaze</h1>
 </header>
 
 <main>
-    <p>This is a simple GitHub Pages site. Feel free to explore my repositories and projects!</p>
-    <p><a href="https://github.com/your-username" target="_blank">Visit my GitHub profile</a></p>
+    <h2 class="descriptor">Description:</h2>
+    <p>This project is trying to educationally gamify Visibility Graphs working with common shortest path algorithms. 
+        We take the classic story of the Minotaur in the Knossos labryinth and uses that as the basis of a simple video game.
+        The maze is made up of polygons that are pre-made or a custom maze made by the player.
+        The player can then view the path made by the visibility graph and shortest path algorithms.
+        The algorithm will prevent you from creating too many obstacles so there aren’t 
+        any solutions. </p>
+
+    <h2 class="descriptor">How It Works:</h2>
+    <p>
+        A visibility graph works by taking two start points and the verticies of all polygons in the maze.
+        Then for each vertice of each polygon, determine which other vertices are within a line of sight (not through another polygon),
+        and create an edge between that vertex and the other one. This graph is later used with shortest path algorithms to determine the shortest path.
+        We will be using A* and/or Dijkstra's algorithm for shortest path calculations.
+    </p>
 </main>
 
 <footer>
-    <p>Created by Your Name &copy; 2024</p>
+    <p>Created by Nathan Borkholder & Charles Hacker &copy; 2024</p>
 </footer>
 
 </body>
