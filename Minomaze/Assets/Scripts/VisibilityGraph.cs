@@ -91,6 +91,44 @@ public class VisibilityGraph
     }
 
     /// <summary>
+    /// Check if a line segment is non-adjacent edge of the same polygon
+    /// </summary>
+    /// <param name="p1"></param> Start point of the line segment
+    /// <param name="p2"></param> End point of the line segment
+    /// <returns></returns> True if the line segment is non-adjacent edge of the same polygon, false otherwise
+    public bool IsNonAdjacentEdgeOfSamePolygon(Vector2 p1, Vector2 p2)
+    {
+        foreach (var polygon in polygons)
+        {
+            int vertexCount = polygon.Length;
+
+            int p1Index = -1;
+            int p2Index = -1;
+
+            for (int i = 0; i < vertexCount; i++)
+            {
+                if (polygon[i] == p1)
+                {
+                    p1Index = i;
+                }
+                if (polygon[i] == p2)
+                {
+                    p2Index = i;
+                }
+            }
+            if (p1Index != -1 && p2Index != -1)
+            {
+                if (p2Index-p1Index != 1 && p1Index-p2Index != 1)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    /// <summary>
     /// Check if an edge is already in the graph
     /// </summary>
     /// <param name="p1"></param> Start point of the edge
@@ -117,7 +155,7 @@ public class VisibilityGraph
             for (int j = i + 1; j < vertices.Count; j++)
             {
                 // Skip if the edge is already in the graph
-                if (!IsEdgeInGraph(vertices[i], vertices[j]))
+                if (!IsEdgeInGraph(vertices[i], vertices[j]) && !IsNonAdjacentEdgeOfSamePolygon(vertices[i], vertices[j]))
                 {
                     // If vertices[i] and vertices[j] are visible, add an edge between them
                     if (IsVisible(vertices[i], vertices[j]))
