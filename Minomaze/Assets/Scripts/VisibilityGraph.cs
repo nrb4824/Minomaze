@@ -2,31 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using Minomaze.structs;
 
 public class VisibilityGraph
 {
-    public struct Edge
-    {
-        public Vector2 Start;
-        public Vector2 End;
-        public Edge(Vector2 start, Vector2 end)
-        {
-            Start = start;
-            End = end;
-        }
-    }
 
     // List of vertices in the environment
-    public List<Vector2> vertices;
+    public List<Node> vertices;
     // List of edges in the graph
     public List<Edge> edges;
     // List to store all polygons in the enviroment
     public List<Vector2[]> polygons;
 
+    public Vector2 startPosition;
+    public Vector2 endPosition;
+
+
     // Constructor
     public VisibilityGraph()
     {
-        vertices = new List<Vector2>();
+        vertices = new List<Node>();
         edges = new List<Edge>();
         polygons = new List<Vector2[]>();
     }
@@ -34,7 +29,10 @@ public class VisibilityGraph
     // Add the verticies of a polygon to the graph
     public void AddPolygon(Vector2[] polygon)
     {
-        vertices.AddRange(polygon);
+        foreach (var vertex in polygon)
+        {
+            vertices.Add(new Node(vertex, endPosition));
+        }
         polygons.Add(polygon);
     }
 
@@ -96,7 +94,7 @@ public class VisibilityGraph
     /// <param name="p1"></param> Start point of the line segment
     /// <param name="p2"></param> End point of the line segment
     /// <returns></returns> True if the line segment is non-adjacent edge of the same polygon, false otherwise
-    public bool IsNonAdjacentEdgeOfSamePolygon(Vector2 p1, Vector2 p2)
+    public bool IsNonAdjacentEdgeOfSamePolygon(Node p1, Node p2)
     {
         foreach (var polygon in polygons)
         {
@@ -107,11 +105,11 @@ public class VisibilityGraph
 
             for (int i = 0; i < vertexCount; i++)
             {
-                if (polygon[i] == p1)
+                if (polygon[i] == p1.position)
                 {
                     p1Index = i;
                 }
-                if (polygon[i] == p2)
+                if (polygon[i] == p2.position)
                 {
                     p2Index = i;
                 }
@@ -134,11 +132,11 @@ public class VisibilityGraph
     /// <param name="p1"></param> Start point of the edge
     /// <param name="p2"></param> End point of the edge
     /// <returns></returns> True if the edge is already in the graph, false otherwise
-    private bool IsEdgeInGraph(Vector2 p1, Vector2 p2)
+    private bool IsEdgeInGraph(Node p1, Node p2)
     {
         foreach(var edge in edges)
         {
-            if ((edge.Start == p1 && edge.End == p2) || (edge.Start == p2 && edge.End == p1))
+            if ((edge.Start == p1.position && edge.End == p2.position) || (edge.Start == p2.position && edge.End == p1.position))
             {
                 return true;
             }
@@ -158,13 +156,15 @@ public class VisibilityGraph
                 if (!IsEdgeInGraph(vertices[i], vertices[j]) && !IsNonAdjacentEdgeOfSamePolygon(vertices[i], vertices[j]))
                 {
                     // If vertices[i] and vertices[j] are visible, add an edge between them
-                    if (IsVisible(vertices[i], vertices[j]))
+                    if (IsVisible(vertices[i].position, vertices[j].position))
                     {
-                        edges.Add(new Edge(vertices[i], vertices[j]));
+                        edges.Add(new Edge(vertices[i].position, vertices[j].position));
+                        vertices[i].neighbors.Add(vertices[j]);
+                        vertices[j].neighbors.Add(vertices[i]);
                     }
-                }
-                
+                }  
             }
         }
     }
+
 }

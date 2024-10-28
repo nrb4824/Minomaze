@@ -2,14 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Minomaze.structs;
 
 public class TestVisibilityGraph : MonoBehaviour
 {
     // Instance of the visibility graph
     VisibilityGraph graph = new VisibilityGraph();
 
-    public Vector2 startPoint = new Vector2(0, 0);
+    
     public Vector2 endPoint = new Vector2(12, 6);
+    public Vector2 startPoint = new Vector2(0, 0);
 
     // Colors for visualization
     public Color polygonColr = Color.red;
@@ -56,8 +58,10 @@ public class TestVisibilityGraph : MonoBehaviour
         };
         graph.AddPolygon(polygon);
 
-        graph.vertices.Add(startPoint);
-        graph.vertices.Add(endPoint);
+        graph.vertices.Add(new Node(startPoint, endPoint, true, false));
+        graph.vertices.Add(new Node(endPoint, endPoint, false, true));
+        graph.startPosition = startPoint;
+        graph.endPosition = endPoint;
 
         graph.CreateVisibilityGraph();
     }
