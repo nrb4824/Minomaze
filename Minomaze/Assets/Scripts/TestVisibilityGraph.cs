@@ -44,6 +44,7 @@ public class TestVisibilityGraph : MonoBehaviour
         graph.vertices.Add(new Node(endPoint, endPoint, false, true));
         graph.startPosition = startPoint;
         graph.endPosition = endPoint;
+        updateDraw();
 
         //InitializeVisibilityGraph();
     }
@@ -82,22 +83,30 @@ public class TestVisibilityGraph : MonoBehaviour
         if (Input.GetMouseButtonUp(0)) isClicking = false;
     }
 
-    private Transform[] convertVector2ToTransform(Vector2 p, Vector2 q)
+    private Transform[] convertVector2ToTransform(Vector2 p, Vector2 q, float z = 0)
     {
         GameObject temp = new GameObject();
         GameObject temp2 = new GameObject();
-        temp.transform.position = new Vector3(p.x, p.y, 0);
-        temp2.transform.position = new Vector3(q.x, q.y, 0);
+        if (z != 0.0)
+        {
+            temp.transform.position = new Vector3(p.x, p.y, z);
+            temp2.transform.position = new Vector3(q.x, q.y, z);
+        }
+        else
+        {
+            temp.transform.position = new Vector3(p.x, p.y, 0);
+            temp2.transform.position = new Vector3(q.x, q.y, 0);
+        }
         Transform[] points = new Transform[] { temp.transform, temp2.transform };
         Destroy(temp);
         Destroy(temp2);
         return points;
     }
 
-    public GameObject drawLine(Vector2 p, Vector2 q, Color color)
+    public GameObject drawLine(Vector2 p, Vector2 q, Color color, float z = 0)
     {
         GameObject temp = Instantiate(lr);
-        temp.GetComponent<LineController>().SetUpLine(convertVector2ToTransform(p, q), color);
+        temp.GetComponent<LineController>().SetUpLine(convertVector2ToTransform(p, q, z), color);
         return temp;
     }
 
@@ -173,7 +182,7 @@ public class TestVisibilityGraph : MonoBehaviour
             {
                 Vector2 current = new Vector2(polygon[i].x, polygon[i].y);
                 Vector2 next = new Vector2(polygon[(i + 1) % vertexCount].x, polygon[(i + 1) % vertexCount].y);
-                polygons.Add(drawLine(current, next, polygonColr));
+                polygons.Add(drawLine(current, next, polygonColr, -1));
 
                 // Draw vertices as small spheres for better visualization
                 circles.Add(drawCircle(current, polygonColr));
