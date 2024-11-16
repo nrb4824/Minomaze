@@ -1,0 +1,65 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    text-align: center;
+    margin: 0, auto;
+    padding: 0;
+    line-height: 1.5em;
+    
+}
+
+p {
+    margin:auto;
+    text-align: left;
+    max-width: 1100px;
+}  
+
+/* Styling the header */
+header {
+    background-color: #282c34;
+    color: white;
+    padding: 20px;
+}
+
+/* Styling the main content */
+main {
+    padding: 20px;
+}
+
+/* Styling links */
+a {
+    color: #61dafb;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Styling the footer */
+footer {
+    background-color: #282c34;
+    color: white;
+    padding: 10px;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    p {
+        text-align:center;
+    }
+}
+
+.descriptor {
+    width: 1100px;
+    margin: auto;
+    text-align:left;
+    padding-block: .75em;
+}
