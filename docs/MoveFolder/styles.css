@@ -63,3 +63,27 @@ footer {
     text-align:left;
     padding-block: .75em;
 }
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+    gap: 10px;
+    padding: 10px;
+    max-width:1100px;
+    margin:auto;
+}
+
+.grid-item{
+    text-align:center;
+}
+
+.fc {
+    display: grid;
+    grid-template-rows: .3fr 1fr .2fr;
+    max-width:1100px;
+    margin:auto;
+}
+
+.fi {
+    text-align: center;
+}
