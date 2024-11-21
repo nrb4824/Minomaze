@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Minomaze.structs;
+using UnityEditor.UI;
+using Unity.Collections;
 
 public class VisibilityGraph
 {
@@ -11,6 +13,10 @@ public class VisibilityGraph
     public List<Node> vertices;
     // List of edges in the graph
     public List<Edge> edges;
+
+    // List of edges in the path
+    public List<Edge> pathEdges;
+
     // List to store all polygons in the enviroment
     public List<Vector2[]> polygons;
 
@@ -24,6 +30,7 @@ public class VisibilityGraph
         vertices = new List<Node>();
         edges = new List<Edge>();
         polygons = new List<Vector2[]>();
+        pathEdges = new List<Edge>();
     }
 
     // Add the verticies of a polygon to the graph
@@ -164,6 +171,65 @@ public class VisibilityGraph
                     }
                 }  
             }
+        }
+        AStarSearch();
+        AStarPath();
+        Debug.Log("now its: " + pathEdges.Count);
+    }
+
+    public void AStarSearch(){
+        // return the shortest path from the start to the end
+        var prioQueue = new List<Node>();
+        Node Start = vertices.Find(x => x.isStart);
+        Node End = vertices.Find(x => x.isEnd);
+        int NodeVisits = 0;
+
+        Start.minCostToStart = 0;
+        prioQueue.Add(Start);
+        do {
+            prioQueue = prioQueue.OrderBy(x => x.minCostToStart + x.heuristic).ToList();
+            var node = prioQueue.First();
+            prioQueue.Remove(node);
+            NodeVisits++;
+
+            foreach (var cnn in node.neighbors.OrderBy(x => x.heuristic))
+            {
+                Node cnn_node = cnn.returnCopy();
+                if (cnn.Visited){
+                    continue;
+                }
+                if (cnn.minCostToStart == float.MaxValue || node.minCostToStart + cnn.minCostToStart < cnn.minCostToStart){
+                    cnn_node.minCostToStart = node.minCostToStart + cnn.heuristic;
+                    cnn_node.NearestToStart = node.position;
+                    if (!prioQueue.Contains(cnn_node)){
+                        prioQueue.Add(cnn_node);
+                    }
+                }
+            }
+            node.Visited = true;
+            if (node.Equals(End)){
+                return;
+            }
+        } while (prioQueue.Count > 0);
+
+    }
+
+    public void AStarPath(){
+        // find path based on NearestToStart
+        Node Start = vertices.Find(x => x.isStart);
+        Node End = vertices.Find(x => x.isEnd);
+        Node current = End;
+
+        Debug.Log("start position: " + Start.position);
+        Debug.Log("end position: " + End.position);
+        while (current.position != Start.position){
+            Debug.Log("current.position: " + current.position);
+            Debug.Log("current.NearesetToStart: " + current.NearestToStart);
+            Edge newEdge = new Edge(current.position, current.NearestToStart);
+            Debug.Log("new edge: " + newEdge.Start + " " + newEdge.End);
+            pathEdges.Add(newEdge);
+            current = vertices.Find(x => x.position == current.NearestToStart);
+            Debug.Log("new current: " + current.position);
         }
     }
 

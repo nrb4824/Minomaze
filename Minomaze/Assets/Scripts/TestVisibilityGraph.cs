@@ -138,6 +138,8 @@ public class TestVisibilityGraph : MonoBehaviour
             Destroy(poly);
         }
         polygons.Clear();
+        // clear out a* nodes
+
     }
 
     public void CreatePoly(List<Vector3> verticies)
@@ -196,6 +198,14 @@ public class TestVisibilityGraph : MonoBehaviour
         if (graph.IsVisible(startPoint, endPoint))
         {
             edges.Add(drawLine(startPoint, endPoint, pathColor));
+        }
+
+        // Draw Path
+        foreach (var edge in graph.pathEdges)
+        {
+            Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
+            Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
+            edges.Add(drawLine(edge.Start, edge.End, pathColor));
         }
     }
     #endregion
