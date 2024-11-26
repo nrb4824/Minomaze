@@ -208,7 +208,7 @@ public class VisibilityGraph
 
             foreach (var cnn in node.neighbors)
             {
-                if (cnn.isStart || cnn.isEnd){
+                if (cnn.isStart){
                     continue;
                 }
                 var cnn_node = vertices.Find(x => x.position == cnn.position);
