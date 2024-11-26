@@ -2,58 +2,93 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using Minomaze.structs;
+using Minomaze.Structs;
 using UnityEditor.UI;
 using Unity.Collections;
+using JetBrains.Annotations;
 
 public class VisibilityGraph
 {
+    // Private fields should use camelCase with underscore prefix
+    private List<Node> _vertices;
+    private List<Edge> _edges;
+    private List<Edge> _pathEdges;
+    private List<Vector2[]> _polygons;
+    private Vector2 _startPosition;
+    private Vector2 _endPosition;
+    private float _pathScore;
 
-    // List of vertices in the environment
-    public List<Node> vertices;
-    // List of edges in the graph
-    public List<Edge> edges;
-
-    // List of edges in the path
-    public List<Edge> pathEdges;
-
-    // List to store all polygons in the enviroment
-    public List<Vector2[]> polygons;
-
-    public Vector2 startPosition;
-    public Vector2 endPosition;
-
+    // Public properties should use PascalCase
+    public List<Node> Vertices => _vertices;
+    public List<Edge> Edges => _edges;
+    public List<Edge> PathEdges => _pathEdges;
+    public List<Vector2[]> Polygons => _polygons;
+    public float PathScore => _pathScore;
 
     // Constructor
     public VisibilityGraph()
     {
-        vertices = new List<Node>();
-        edges = new List<Edge>();
-        polygons = new List<Vector2[]>();
-        pathEdges = new List<Edge>();
+        _vertices = new List<Node>();
+        _edges = new List<Edge>();
+        _polygons = new List<Vector2[]>();
+        _pathEdges = new List<Edge>();
     }
 
-    // Add the verticies of a polygon to the graph
+    public void SetStart(Vector2 newStart)
+    {
+        _vertices.Remove(_vertices.Find(x => x.IsStart));
+        _vertices.Add(new Node(newStart, _endPosition, true, false));
+        _startPosition = newStart;
+    }
+
+    public void SetEnd(Vector2 newEnd)
+    {
+        _vertices.Remove(_vertices.Find(x => x.IsEnd));
+        _vertices.Add(new Node(newEnd, _endPosition, false, true));
+        _endPosition = newEnd;
+    }
+
+    public void ClearLists(){
+        _pathEdges.Clear();
+        _edges.Clear();
+        // clear neighbors list in all vertices
+        foreach (var vertex in _vertices){
+            vertex.Neighbors.Clear();
+        }
+    }
+
+    public List<Edge> GetPathEdges(){
+        return _pathEdges;
+    }
+
+
+    /// <summary>
+    /// Adds a polygon's vertices to the visibility graph
+    /// </summary>
+    /// <param name="polygon">Array of Vector2 points defining the polygon</param>
     public void AddPolygon(Vector2[] polygon)
     {
-        foreach (var vertex in polygon)
+        // Add each vertex as a node
+        foreach (Vector2 vertex in polygon)
         {
-            vertices.Add(new Node(vertex, endPosition));
+            _vertices.Add(new Node(vertex, _endPosition));
         }
-        polygons.Add(polygon);
+        _polygons.Add(polygon);
     }
 
-    // Adds all edges of polygons to the visibility graph.
+    /// <summary>
+    /// Adds all polygon edges to the visibility graph
+    /// </summary>
     private void AddPolygonEdges()
     {
-        foreach (var polygon in polygons)
+        foreach (Vector2[] polygon in _polygons)
         {
             int vertexCount = polygon.Length;
             for (int i = 0; i < vertexCount; i++)
             {
-                Vector2 p1 = polygon[i];
-                Vector2 p2 = polygon[(i + 1) % vertexCount];
-                edges.Add(new Edge(p1, p2));
+                Vector2 startPoint = polygon[i];
+                Vector2 endPoint = polygon[(i + 1) % vertexCount];
+                _edges.Add(new Edge(startPoint, endPoint));
             }
         }
     }
@@ -69,7 +104,7 @@ public class VisibilityGraph
         LineSegment visibilityLine = new LineSegment(p1, p2);
 
         // Iterate through all polygon edges to check for intersections
-        foreach (var polygon in polygons)
+        foreach (var polygon in _polygons)
         {
             int vertexCount = polygon.Length;
             for (int i = 0; i < vertexCount; i++)
@@ -103,7 +138,7 @@ public class VisibilityGraph
     /// <returns></returns> True if the line segment is non-adjacent edge of the same polygon, false otherwise
     public bool IsNonAdjacentEdgeOfSamePolygon(Node p1, Node p2)
     {
-        foreach (var polygon in polygons)
+        foreach (var polygon in _polygons)
         {
             int vertexCount = polygon.Length;
 
@@ -112,11 +147,11 @@ public class VisibilityGraph
 
             for (int i = 0; i < vertexCount; i++)
             {
-                if (polygon[i] == p1.position)
+                if (polygon[i] == p1.Position)
                 {
                     p1Index = i;
                 }
-                if (polygon[i] == p2.position)
+                if (polygon[i] == p2.Position)
                 {
                     p2Index = i;
                 }
@@ -141,9 +176,9 @@ public class VisibilityGraph
     /// <returns></returns> True if the edge is already in the graph, false otherwise
     private bool IsEdgeInGraph(Node p1, Node p2)
     {
-        foreach(var edge in edges)
+        foreach(var edge in _edges)
         {
-            if ((edge.Start == p1.position && edge.End == p2.position) || (edge.Start == p2.position && edge.End == p1.position))
+            if ((edge.Start == p1.Position && edge.End == p2.Position) || (edge.Start == p2.Position && edge.End == p1.Position))
             {
                 return true;
             }
@@ -154,109 +189,104 @@ public class VisibilityGraph
     // Generate the visibility graph by connecting visible vertices with edges
     public void CreateVisibilityGraph()
     {
+
         // Loop through every pair of vertices to check visibility
-        for (int i = 0; i < vertices.Count; i++)
+        for (int i = 0; i < _vertices.Count; i++)
         {
-            for (int j = i + 1; j < vertices.Count; j++)
+            for (int j = i + 1; j < _vertices.Count; j++)
             {
                 // Skip if the edge is already in the graph
-                if (!IsEdgeInGraph(vertices[i], vertices[j]) && !IsNonAdjacentEdgeOfSamePolygon(vertices[i], vertices[j]))
+                if (!IsEdgeInGraph(_vertices[i], _vertices[j]) && !IsNonAdjacentEdgeOfSamePolygon(_vertices[i], _vertices[j]))
                 {
-                    // If vertices[i] and vertices[j] are visible, add an edge between them
-                    if (IsVisible(vertices[i].position, vertices[j].position))
+                    // If _vertices[i] and _vertices[j] are visible, add an edge between them
+                    if (IsVisible(_vertices[i].Position, _vertices[j].Position))
                     {
-                        edges.Add(new Edge(vertices[i].position, vertices[j].position));
-                        vertices[i].neighbors.Add(vertices[j]);
-                        vertices[j].neighbors.Add(vertices[i]);
+                        _edges.Add(new Edge(_vertices[i].Position, _vertices[j].Position));
+                        _vertices[i].Neighbors.Add(_vertices[j]);
+                        _vertices[j].Neighbors.Add(_vertices[i]);
                     }
                 }  
             }
         }
 
-        // foreach (var vertex in vertices)
-        // {
-        //     Debug.Log("vertex: " + vertex.position);
-        //     foreach (var neighbor in vertex.neighbors)
-        //     {
-        //         Debug.Log("neighbor: " + neighbor.position);
-        //     }
-        // }
-
-        AStarSearch();
-        AStarPath();
-        Debug.Log("now its: " + pathEdges.Count);
+        Dictionary<Vector2, Vector2> nearestToStart = AStarSearch();
+        _pathScore = AStarPath(nearestToStart);
+        
     }
 
-    public void AStarSearch(){
+    public Dictionary<Vector2, Vector2> AStarSearch(){
         // return the shortest path from the start to the end
         var prioQueue = new List<Node>();
-        Node Start = vertices.Find(x => x.isStart);
-        Node End = vertices.Find(x => x.isEnd);
+        List<Node> visitedNodes = new List<Node>();
+        Dictionary<Vector2, float> distances = new Dictionary<Vector2, float>();
+        Dictionary<Vector2, Vector2> nearestToStart = new Dictionary<Vector2, Vector2>();
 
-        Start.minCostToStart = 0;
+        foreach (var node in _vertices){
+            distances[node.Position] = float.MaxValue;
+        }
+
+        Node Start = _vertices.Find(x => x.IsStart);
+        Node End = _vertices.Find(x => x.IsEnd);
+
+        distances[Start.Position] = 0;
         prioQueue.Add(Start);
         do {
-            prioQueue = prioQueue.OrderBy(x => x.minCostToStart + x.heuristic).ToList();
+            // sort prioQueue by distances[node.position] + node.heuristic
+            prioQueue = prioQueue.OrderBy(x => distances[x.Position]).ThenBy(x => x.Heuristic).ToList();
+
             var node = prioQueue.First();
             prioQueue.Remove(node);
 
-            if (node.isEnd){
-                return;
+            if (node.IsEnd){
+                break;
             }
 
-            Debug.Log("investigating node: " + node.position + " with: " + node.neighbors.Count + " neighbors");
-
-            foreach (var cnn in node.neighbors)
+            foreach (var cnn in node.Neighbors)
             {
-                if (cnn.isStart){
-                    continue;
-                }
-                var cnn_node = vertices.Find(x => x.position == cnn.position);
-                if (cnn_node.Visited){
-                    continue;
-                }
-                float distanceThroughNode = node.minCostToStart + Vector2.Distance(node.position, cnn.position);
-                if (distanceThroughNode < cnn_node.minCostToStart){
-                    cnn_node.minCostToStart = distanceThroughNode;
-                    cnn_node.NearestToStart = node.position;
-                    Debug.Log("setting nearestto start for position: " + cnn_node.position + " to " + node.position);
-                    if (!prioQueue.Contains(cnn_node)){
-                        prioQueue.Add(cnn_node);
+                float successorCurrentCost = distances[node.Position] + node.Heuristic;
+                // if cnn is in the open list
+                if (prioQueue.Contains(cnn)){
+                    if (distances[cnn.Position] <= successorCurrentCost){
+                        continue;
                     }
+                }else if (visitedNodes.Contains(cnn)){
+                    if (distances[cnn.Position] <= successorCurrentCost){
+                        continue;
+                    }
+                    // move from visitedNodes to prioQueue
+                    prioQueue.Add(cnn);
+                    visitedNodes.Remove(cnn);
+                }else{
+                    prioQueue.Add(cnn);
                 }
+                distances[cnn.Position] = distances[node.Position] + Vector2.Distance(node.Position, cnn.Position);
+                nearestToStart[cnn.Position] = node.Position;
             }
-            node.Visited = true;
-            if (node.Equals(End)){
-                return;
-            }
-        } while (prioQueue.Count > 0);
-
+            visitedNodes.Add(node);
+        } while (prioQueue.Count > 0);  
+        return nearestToStart;
     }
 
-    public void AStarPath(){
-        // find path based on NearestToStart
-        Node Start = vertices.Find(x => x.isStart);
-        Node End = vertices.Find(x => x.isEnd);
-        Node current = End;
+    public float AStarPath(Dictionary<Vector2, Vector2> nearestToStart){
 
-        Debug.Log("start position: " + Start.position);
-        Debug.Log("end position: " + End.position);
+        // find path based on NearestToStart
+        Node Start = _vertices.Find(x => x.IsStart);
+        Node End = _vertices.Find(x => x.IsEnd);
+        Vector2 current = End.Position;
+        float score = 0;
 
         int loopCount = 0;
-        while (current.position != Start.position){
-            Debug.Log("current.position: " + current.position);
-            Debug.Log("current.NearesetToStart: " + current.NearestToStart);
-            Edge newEdge = new Edge(current.position, current.NearestToStart);
-            Debug.Log("new edge: " + newEdge.Start + " " + newEdge.End);
-            pathEdges.Add(newEdge);
-            current = vertices.Find(x => x.position == current.NearestToStart);
-            Debug.Log("new current: " + current.position);
+        while (current != Start.Position){
+            Edge newEdge = new Edge(current, nearestToStart[current]);
+            _pathEdges.Add(newEdge);
+            current = nearestToStart[current];
+            score += Vector2.Distance(newEdge.Start, newEdge.End);
 
             loopCount ++;
             if (loopCount > 10){
                 break;
             }
         }
+        return score;
     }
-
 }

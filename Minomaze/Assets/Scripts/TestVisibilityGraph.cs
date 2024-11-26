@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-using Minomaze.structs;
+using Minomaze.Structs;
 using UnityEngine.UI;
 
 public class TestVisibilityGraph : MonoBehaviour
@@ -39,14 +39,15 @@ public class TestVisibilityGraph : MonoBehaviour
 
     private void Start()
     {
-        graph.vertices.Add(new Node(startPoint, endPoint, true, false));
-        graph.vertices.Add(new Node(endPoint, endPoint, false, true));
-        graph.startPosition = startPoint;
-        graph.endPosition = endPoint;
+        graph.Vertices.Add(new Node(startPoint, endPoint, true, false));
+        graph.Vertices.Add(new Node(endPoint, endPoint, false, true));
+        graph.SetStart(startPoint);
+        graph.SetEnd(endPoint);
         updateDraw();
 
         //InitializeVisibilityGraph();
     }
+
 
     #region Drawing
     void Update()
@@ -137,8 +138,7 @@ public class TestVisibilityGraph : MonoBehaviour
             Destroy(poly);
         }
         polygons.Clear();
-        // clear out a* nodes
-
+        graph.ClearLists();
     }
 
     public void CreatePoly(List<Vector3> verticies)
@@ -153,8 +153,6 @@ public class TestVisibilityGraph : MonoBehaviour
             }
             clearLists();
 
-            graph.edges.Clear();
-
             graph.AddPolygon(poly);
             graph.CreateVisibilityGraph();
             updateDraw();
@@ -167,7 +165,7 @@ public class TestVisibilityGraph : MonoBehaviour
 
         // Draw Visibility Edges
         // Gizmos.color = edgeColor;
-        foreach (var edge in graph.edges)
+        foreach (var edge in graph.Edges)
         {
             Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
             Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
@@ -176,14 +174,14 @@ public class TestVisibilityGraph : MonoBehaviour
 
         // Draw Polygons
         //Gizmos.color = polygonColr;
-        foreach (var polygon in graph.polygons)
+        foreach (var polygon in graph.Polygons)
         {
             int vertexCount = polygon.Length;
             for (int i = 0; i < vertexCount; i++)
             {
                 Vector2 current = new Vector2(polygon[i].x, polygon[i].y);
                 Vector2 next = new Vector2(polygon[(i + 1) % vertexCount].x, polygon[(i + 1) % vertexCount].y);
-                polygons.Add(drawLine(current, next, polygonColr, -1));
+                polygons.Add(drawLine(current, next, polygonColr, -2));
 
                 // Draw vertices as small spheres for better visualization
                 circles.Add(drawCircle(current, polygonColr));
@@ -200,11 +198,11 @@ public class TestVisibilityGraph : MonoBehaviour
         }
 
         // Draw Path
-        foreach (var edge in graph.pathEdges)
+        foreach (var edge in graph.GetPathEdges())
         {
             Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
             Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
-            edges.Add(drawLine(edge.Start, edge.End, pathColor));
+            edges.Add(drawLine(edge.Start, edge.End, pathColor, -1));
         }
     }
     #endregion
@@ -233,10 +231,10 @@ public class TestVisibilityGraph : MonoBehaviour
         };
         graph.AddPolygon(square2);
 
-        graph.vertices.Add(new Node(startPoint, endPoint, true, false));
-        graph.vertices.Add(new Node(endPoint, endPoint, false, true));
-        graph.startPosition = startPoint;
-        graph.endPosition = endPoint;
+        graph.Vertices.Add(new Node(startPoint, endPoint, true, false));
+        graph.Vertices.Add(new Node(endPoint, endPoint, false, true));
+        graph.SetStart(startPoint);
+        graph.SetEnd(endPoint);
 
         graph.CreateVisibilityGraph();
     }
