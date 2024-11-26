@@ -14,9 +14,8 @@ public class TestVisibilityGraph : MonoBehaviour
     public GameObject lr;
     public GameObject circle;
 
-
-    public Vector2 endPoint;
     public Vector2 startPoint;
+    public Vector2 endPoint;
 
     // Drawing variables
     public Vector3 screenPosition;

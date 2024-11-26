@@ -172,6 +172,16 @@ public class VisibilityGraph
                 }  
             }
         }
+
+        // foreach (var vertex in vertices)
+        // {
+        //     Debug.Log("vertex: " + vertex.position);
+        //     foreach (var neighbor in vertex.neighbors)
+        //     {
+        //         Debug.Log("neighbor: " + neighbor.position);
+        //     }
+        // }
+
         AStarSearch();
         AStarPath();
         Debug.Log("now its: " + pathEdges.Count);
@@ -182,7 +192,6 @@ public class VisibilityGraph
         var prioQueue = new List<Node>();
         Node Start = vertices.Find(x => x.isStart);
         Node End = vertices.Find(x => x.isEnd);
-        int NodeVisits = 0;
 
         Start.minCostToStart = 0;
         prioQueue.Add(Start);
@@ -190,17 +199,27 @@ public class VisibilityGraph
             prioQueue = prioQueue.OrderBy(x => x.minCostToStart + x.heuristic).ToList();
             var node = prioQueue.First();
             prioQueue.Remove(node);
-            NodeVisits++;
 
-            foreach (var cnn in node.neighbors.OrderBy(x => x.heuristic))
+            if (node.isEnd){
+                return;
+            }
+
+            Debug.Log("investigating node: " + node.position + " with: " + node.neighbors.Count + " neighbors");
+
+            foreach (var cnn in node.neighbors)
             {
-                Node cnn_node = cnn.returnCopy();
-                if (cnn.Visited){
+                if (cnn.isStart || cnn.isEnd){
                     continue;
                 }
-                if (cnn.minCostToStart == float.MaxValue || node.minCostToStart + cnn.minCostToStart < cnn.minCostToStart){
-                    cnn_node.minCostToStart = node.minCostToStart + cnn.heuristic;
+                var cnn_node = vertices.Find(x => x.position == cnn.position);
+                if (cnn_node.Visited){
+                    continue;
+                }
+                float distanceThroughNode = node.minCostToStart + Vector2.Distance(node.position, cnn.position);
+                if (distanceThroughNode < cnn_node.minCostToStart){
+                    cnn_node.minCostToStart = distanceThroughNode;
                     cnn_node.NearestToStart = node.position;
+                    Debug.Log("setting nearestto start for position: " + cnn_node.position + " to " + node.position);
                     if (!prioQueue.Contains(cnn_node)){
                         prioQueue.Add(cnn_node);
                     }
@@ -222,6 +241,8 @@ public class VisibilityGraph
 
         Debug.Log("start position: " + Start.position);
         Debug.Log("end position: " + End.position);
+
+        int loopCount = 0;
         while (current.position != Start.position){
             Debug.Log("current.position: " + current.position);
             Debug.Log("current.NearesetToStart: " + current.NearestToStart);
@@ -230,6 +251,11 @@ public class VisibilityGraph
             pathEdges.Add(newEdge);
             current = vertices.Find(x => x.position == current.NearestToStart);
             Debug.Log("new current: " + current.position);
+
+            loopCount ++;
+            if (loopCount > 10){
+                break;
+            }
         }
     }
 
