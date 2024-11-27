@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Minomaze.Structs;
 using UnityEngine.UI;
+using TMPro;
 
 public class TestVisibilityGraph : MonoBehaviour
 {
@@ -21,13 +21,20 @@ public class TestVisibilityGraph : MonoBehaviour
     public Vector3 screenPosition;
     public Vector3 worldPosition;
     public bool draw = false;
+    public bool drawStart = false;
+    public bool drawEnd = false;
     public List<Vector3> verticies = new List<Vector3>();
     public Button drawButton;
+    public Button drawEndButton;
+    public Button drawStartButton;
+    public TMP_Text score;
+
     public List<GameObject> edges = new List<GameObject>();
     public List<GameObject> polygons = new List<GameObject>();
     public List<GameObject> circles = new List<GameObject>();
     public List<GameObject> tempCircles = new List<GameObject>();
     public bool isClicking = false;
+ 
 
     // Colors for visualization
     public Color polygonColr = Color.red;
@@ -65,6 +72,34 @@ public class TestVisibilityGraph : MonoBehaviour
                 isClicking = true;
                 verticies.Add(worldPosition);
                 tempCircles.Add(drawCircle(worldPosition, polygonColr));
+            }
+        }
+        else if (drawStart)
+        {
+            if (Input.GetMouseButtonDown(0) && !isClicking)
+            {
+                isClicking = true;
+                startPoint = worldPosition;
+                graph.SetStart(worldPosition);
+                drawStart = !drawStart;
+                drawStartButton.GetComponent<Image>().color = drawStart ? Color.green : Color.red;
+                clearLists();
+                graph.CreateVisibilityGraph();
+                updateDraw();
+            }
+        }
+        else if(drawEnd)
+        {
+            if (Input.GetMouseButtonDown(0) && !isClicking)
+            {
+                isClicking = true;
+                endPoint = worldPosition;
+                graph.SetEnd(worldPosition);
+                drawEnd = !drawEnd;
+                drawEndButton.GetComponent<Image>().color = drawEnd ? Color.green : Color.red;
+                clearLists();
+                graph.CreateVisibilityGraph();
+                updateDraw();
             }
         }
         else
@@ -110,11 +145,11 @@ public class TestVisibilityGraph : MonoBehaviour
         return temp;
     }
 
-    public GameObject drawCircle(Vector2 p, Color color)
+    public GameObject drawCircle(Vector2 p, Color color, float z = -3)
     {
         GameObject temp = Instantiate(circle);
         GameObject pTemp = new GameObject();
-        pTemp.transform.position = new Vector3(p.x, p.y, 0);
+        pTemp.transform.position = new Vector3(p.x, p.y, z);
         temp.GetComponent<CircleController>().SetUpCircle(pTemp.transform, color);
         Destroy(pTemp);
         return temp;
@@ -124,6 +159,18 @@ public class TestVisibilityGraph : MonoBehaviour
     {
         draw = !draw;
         drawButton.GetComponent<Image>().color = draw ? Color.green : Color.red;
+    }
+
+    public void setStartPoint()
+    {
+        drawStart = !drawStart;
+        drawStartButton.GetComponent<Image>().color = drawStart ? Color.green : Color.red;
+    }
+
+    public void setEndPoint()
+    {
+        drawEnd = !drawEnd;
+        drawEndButton.GetComponent<Image>().color = drawEnd ? Color.green : Color.red;
     }
 
     private void clearLists()
@@ -138,6 +185,12 @@ public class TestVisibilityGraph : MonoBehaviour
             Destroy(poly);
         }
         polygons.Clear();
+        foreach (GameObject circle in circles)
+        {
+            Destroy(circle);
+        }
+        
+        circles.Clear();
         graph.ClearLists();
     }
 
@@ -162,6 +215,8 @@ public class TestVisibilityGraph : MonoBehaviour
     private void updateDraw()
     {
         if (graph == null) InitializeVisibilityGraph();
+
+        score.text = "Length: " + Mathf.Round(graph.PathScore * 10);
 
         // Draw Visibility Edges
         // Gizmos.color = edgeColor;
@@ -238,58 +293,4 @@ public class TestVisibilityGraph : MonoBehaviour
 
         graph.CreateVisibilityGraph();
     }
-
-    /// <summary>
-    /// Draw the polygons and visibility edges.
-    /// </summary>
-/*    private void OnDrawGizmos()
-    {
-        //if (graph == null) InitializeVisibilityGraph();
-
-        // Draw Visibility Edges
-        Gizmos.color = edgeColor;
-        foreach (var edge in graph.edges)
-        {
-            Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
-            Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
-            Gizmos.DrawLine(start, end);
-        }
-
-        // Draw Polygons
-        Gizmos.color = polygonColr;
-        foreach (var polygon in graph.polygons)
-        {
-            int vertexCount = polygon.Length;
-            for (int i = 0; i < vertexCount; i++)
-            {
-                Vector3 current = new Vector3(polygon[i].x, polygon[i].y, 0);
-                Vector3 next = new Vector3(polygon[(i + 1) % vertexCount].x, polygon[(i + 1) % vertexCount].y, 0);
-                Gizmos.DrawLine(current, next);
-
-                // Draw vertices as small spheres for better visualization
-                Gizmos.DrawSphere(current, 0.1f);
-            }
-        }
-
-        Gizmos.color = startPointColor;
-        Gizmos.DrawSphere(new Vector3(startPoint.x, startPoint.y, 0), 0.2f);
-        Gizmos.color = endPointColor;
-        Gizmos.DrawSphere(new Vector3(endPoint.x, endPoint.y, 0), 0.2f);
-
-        // If the start and end points are visible, draw the path
-        if (graph.IsVisible(startPoint, endPoint))
-        {
-            Gizmos.color = pathColor;
-            Gizmos.DrawLine(new Vector3(startPoint.x, startPoint.y, 0), new Vector3(endPoint.x, endPoint.y, 0));
-        }
-    }*/
-
-
-    /// <summary>
-    /// Regenerate the visibility graph when the script is changed
-    /// </summary>
-/*    private void OnValidate()
-    {
-        InitializeVisibilityGraph();
-    }*/
 }

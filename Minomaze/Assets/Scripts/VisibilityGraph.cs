@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using Minomaze.Structs;
-using UnityEditor.UI;
-using Unity.Collections;
-using JetBrains.Annotations;
 
 public class VisibilityGraph
 {
