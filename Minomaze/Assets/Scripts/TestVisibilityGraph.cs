@@ -48,8 +48,7 @@ public class TestVisibilityGraph : MonoBehaviour
     {
         graph.Vertices.Add(new Node(startPoint, endPoint, true, false));
         graph.Vertices.Add(new Node(endPoint, endPoint, false, true));
-        graph.SetStart(startPoint);
-        graph.SetEnd(endPoint);
+        graph.CreateVisibilityGraph();
         updateDraw();
 
         //InitializeVisibilityGraph();
@@ -145,7 +144,7 @@ public class TestVisibilityGraph : MonoBehaviour
         return temp;
     }
 
-    public GameObject drawCircle(Vector2 p, Color color, float z = -3)
+    public GameObject drawCircle(Vector2 p, Color color, float z = -4)
     {
         GameObject temp = Instantiate(circle);
         GameObject pTemp = new GameObject();
@@ -171,6 +170,17 @@ public class TestVisibilityGraph : MonoBehaviour
     {
         drawEnd = !drawEnd;
         drawEndButton.GetComponent<Image>().color = drawEnd ? Color.green : Color.red;
+    }
+
+    public void clearButton()
+    {
+        clearLists();
+        graph.Polygons.Clear();
+        graph.Vertices.Clear();
+        graph.Vertices.Add(new Node(startPoint, endPoint, true, false));
+        graph.Vertices.Add(new Node(endPoint, endPoint, false, true));
+        graph.CreateVisibilityGraph();
+        updateDraw();
     }
 
     private void clearLists()
@@ -243,6 +253,14 @@ public class TestVisibilityGraph : MonoBehaviour
             }
         }
 
+        // Draw Path
+        foreach (var edge in graph.GetPathEdges())
+        {
+            Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
+            Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
+            edges.Add(drawLine(edge.Start, edge.End, pathColor, -3));
+        }
+
         circles.Add(drawCircle(startPoint, startPointColor));
         circles.Add(drawCircle(endPoint, endPointColor));
 
@@ -252,13 +270,7 @@ public class TestVisibilityGraph : MonoBehaviour
             edges.Add(drawLine(startPoint, endPoint, pathColor));
         }
 
-        // Draw Path
-        foreach (var edge in graph.GetPathEdges())
-        {
-            Vector3 start = new Vector3(edge.Start.x, edge.Start.y, 0);
-            Vector3 end = new Vector3(edge.End.x, edge.End.y, 0);
-            edges.Add(drawLine(edge.Start, edge.End, pathColor, -1));
-        }
+
     }
     #endregion
 
