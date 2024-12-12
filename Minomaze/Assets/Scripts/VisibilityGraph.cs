@@ -229,7 +229,7 @@ public class VisibilityGraph
         prioQueue.Add(Start);
         do {
             // sort prioQueue by distances[node.position] + node.heuristic
-            prioQueue = prioQueue.OrderBy(x => distances[x.Position]).ThenBy(x => x.Heuristic).ToList();
+            prioQueue = prioQueue.OrderBy(x => distances[x.Position] + x.Heuristic).ToList();
 
             var node = prioQueue.First();
             prioQueue.Remove(node);
@@ -240,19 +240,14 @@ public class VisibilityGraph
 
             foreach (var cnn in node.Neighbors)
             {
-                float successorCurrentCost = distances[node.Position] + node.Heuristic;
+                float successorCurrentCost = distances[node.Position] + Vector2.Distance(node.Position, cnn.Position);
                 // if cnn is in the open list
                 if (prioQueue.Contains(cnn)){
                     if (distances[cnn.Position] <= successorCurrentCost){
                         continue;
                     }
                 }else if (visitedNodes.Contains(cnn)){
-                    if (distances[cnn.Position] <= successorCurrentCost){
-                        continue;
-                    }
-                    // move from visitedNodes to prioQueue
-                    prioQueue.Add(cnn);
-                    visitedNodes.Remove(cnn);
+                    continue;
                 }else{
                     prioQueue.Add(cnn);
                 }
@@ -261,6 +256,7 @@ public class VisibilityGraph
             }
             visitedNodes.Add(node);
         } while (prioQueue.Count > 0);  
+
         return nearestToStart;
     }
 
