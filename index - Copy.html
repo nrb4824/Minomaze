@@ -13,17 +13,17 @@
     <header>
         <h1>Minomaze</h1>
     </header>
-    <div style="padding:20px; margin-bottom:28%;">
+    <div style="padding:20px;">
         <h2 class="descriptor">Description:</h2>
         <p>
-            This project is trying to educationally gamify Visibility Graphs working with common shortest path algorithms.
-            We take the classic story of the Minotaur in the Knossos labryinth and use that as the basis of a simple video game.
-            The maze is made up of polygons that are pre-made made by the player.
-            The player can then view the path made by the visibility graph and shortest path algorithms.
+            This project is trying to educationally gamify Visibility Graphs working with common shortest path algorithms. We take the classic story of the Minotaur in the Knossos labyrinth and use that as the 
+            basis of a simple video game. The maze is made up of polygons that are made by the player. The player can then view the path made by the visibility graph and shortest path algorithms. 
+            The player can also move the player or the start point and the Minotaur or the end point. This allows the player to create all sorts of unique mazes and visualize how a visibility graph works. 
+            The shortest path is scored, with the lower the score being the shorter path. Sometimes it is hard to tell the difference between visibility graphs so the score helps visualize that numerically.
         </p>
     </div>
 
-    <div id="unity-container" class="unity-desktop" >
+    <div id="unity-container" class="unity-desktop" style="top:670px;">
         <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
         <div id="unity-loading-bar">
             <div id="unity-logo"></div>
@@ -39,7 +39,7 @@
     </div>
 
 
-    <div style="padding:20px; margin-bottom:5%;">
+    <div style="padding:20px; padding-bottom:100px; position:relative;top:670px;">
         <h2 class="descriptor">How It Works:</h2>
         <p>
             A visibility graph works by taking two start points and the verticies of all polygons in the maze.
@@ -49,11 +49,23 @@
         </p>
 
         <h2 class="descriptor">Controls:</h2>
-        <p>
-            The green dot is you, and the yellow dot is the Minotaur. When you start there is a straight path between you and the Minotaur. To add obstacles, click on the red draw button.
-            The button will turn green, this means you are drawing. Click on at least 3 points on the screen, then click the draw button again to finish the polygon. Your shape will be drawn and a visibility graph 
-            and shortest path will be calculated and displayed. To draw more polygons, repeat the steps using the draw button. When the draw button is red your clicks will not draw polygons and when it is green they will.
-        </p>
+        <p>The green dot is you or the start point, and the yellow dot is the Minotaur or the end point. When you start there is a straight path between you and the Minotaur shown by the magenta line.</p>
+        <ul>
+            <li>
+                To add obstacles, click on the red draw button.
+                The button will turn green, this means you are drawing. Click on at least 3 points on the screen, then click the draw button again to finish the polygon. Your shape will be drawn and a visibility graph
+                and shortest path will be calculated and displayed. To draw more polygons, repeat the steps using the draw button. When the draw button is red your clicks will not draw polygons and when it is green they will.
+            </li>
+            <li>
+                To move the start point, click the red 'start point' button, then click on the screen where you want the start point to be.
+            </li>
+            <li>
+                To move the end point, click the red 'end point' button, then click on the screen where you want the end point to be.
+            </li>
+            <li>
+                The clear button will clear all polygons and the visibility graph and shortest path.
+            </li>
+        </ul>
         <div class="grid-container">
             <img src="MoveFolder/ShowDraw.jpg" alt="show draw" class="grid-item" style="width:100%; height:auto;" />
             <div class="grid-item">
@@ -67,9 +79,14 @@
         <h2 class="descriptor">Limitations</h2>
         <p>
             In the current implementation, the player can only draw polygons that don't cross over itself. The draw tool is not advanced enough to disallow this, and it will break the visibility graph and shortest path algorithms.
-            This might seem obvious as if a polygon crosses over itself it isn't really a singular polygon.
+            This might seem obvious as if a polygon crosses over itself it isn't really a singular polygon. Additionally the player can't draw a polygon around the start or end point. This will cause the visibility graph to break as well.
+            A maze where the player or Minotaur isn't a very well designed maze.
         </p>
-        <img src="MoveFolder/DontPolygon.jpg" alt="don't polygon" />
+        <div class="grid-container2">
+            <img src="MoveFolder/DontPolygon.jpg" alt="don't polygon" class="grid-item" style="width:auto; height:100%;"/>
+            <img src="MoveFolder/DontPolygon2.jpg" alt="don't polygon 2" class="grid-item" style="width:auto; height:100%;"/>
+        </div>
+        
 
         <h2 class="descriptor">Complexity Analysis</h2>
 
