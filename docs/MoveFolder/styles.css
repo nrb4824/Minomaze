@@ -38,6 +38,9 @@ header {
     background-color: #282c34;
     color: white;
     padding: 20px;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
 }
 
 /* Styling the main content */
@@ -111,3 +114,15 @@ footer {
 .fi {
     text-align: center;
 }
+
+a.video {
+    text-decoration:none; 
+    color:white; 
+    margin-right:10px; 
+    font-size:24px;
+}
+
+a.video:hover {
+    color: #326cc9;
+}
+
