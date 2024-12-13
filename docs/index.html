@@ -46,6 +46,9 @@
             Then for each vertice of each polygon, determine which other vertices are within a line of sight (not through another polygon),
             and create an edge between that vertex and the other one. The only modification needed for this implementation is that we must allow edges to be formed
             on the edges of polygons for the shortest path algorithm. This graph is later used with the A* shortest path algorithms to determine the shortest path from the player to the Minotaur.
+            The neighbors of each node connected by an edge is stored and then passed along with node location and heuristics (Euclidean distance to the end) to the A* algorithm. This algorithm 
+            uses these heuristics to determine the order in which nodes are investigated. During this process, nodes are assigned a current shortest distance to the start, and its neighbor that 
+            is closest to the start. At the end of the process we can work back through the nodes from the end node and define the shortest path.
         </p>
 
         <h2 class="descriptor">Controls:</h2>
@@ -83,14 +86,38 @@
             A maze where the player or Minotaur isn't a very well designed maze.
         </p>
         <div class="grid-container2">
-            <img src="MoveFolder/DontPolygon.jpg" alt="don't polygon" class="grid-item" style="width:auto; height:100%;"/>
-            <img src="MoveFolder/DontPolygon2.jpg" alt="don't polygon 2" class="grid-item" style="width:auto; height:100%;"/>
+            <img src="MoveFolder/DontPolygon.jpg" alt="don't polygon" class="grid-item" style="width:auto; height:80%;"/>
+            <img src="MoveFolder/DontPolygon2.jpg" alt="don't polygon 2" class="grid-item" style="width:auto; height:80%;"/>
         </div>
         
 
         <h2 class="descriptor">Complexity Analysis</h2>
+        <p>
+            The overall complexity is taken up by our CreateVisibilityGraph method which iterates over all pairs of vertices and checks all polygon edges.
+            Specifically there are the outer and inner loops that cover all vertices which is O(n<sup>2</sup>)
+            Within these loops there is a loop that goes through each polygonal edge which takes O(m)
+            The final time complexity of our program is O(n<sup>2</sup> * m)
+            We theorize that this time could be improved with an octree implementation. This would allow us to only check vertices that are within a certain distance of each other.
+            <br /> <br />
+            <span style="font-size:18px; font-weight:bold;">Example runs: </span></br>
+            <ul style="list-style-type:none;">
+                <li>9 points and 17 edges took 0ms</li>
+                <li>45 points and 80 edges took 5ms</li>
+                <li>405 points and 233 edges took 857ms</li>
+            </ul>
+        </p>
 
         <h2 class="descriptor">Other Projects</h2>
+        <p>
+            Visibility Graphs have applications outside of polygonal path finding. Visibility graphs have been used with 
+            <a href="https://www.sciencedirect.com/science/article/pii/S0378437116304940" style="color: #326cc9;">Time Series</a>
+            , and researchers have been able to 
+            apply graph theory and network analysis to gain insights on datasets. Researchers are studying the computational complexities of different visibility graph algorithms.
+            One paper proposes a method called 
+            <a href="https://www.sciencedirect.com/science/article/pii/S0952197623017414" style="color: #326cc9;">GVG</a> 
+            to analyze biological time series. First they convert the time series into visibility graphs which can reveal relationships between data points.
+            Lines are drawn from the top of bar graphs to every point visible from that point. Once this time series data is represented in a graph, the encoded relationships can be manipulated and analyzed.
+        </p>
 
     </div>
    

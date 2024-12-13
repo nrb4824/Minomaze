@@ -97,6 +97,8 @@ footer {
 .grid-item{
     text-align:center;
     max-width:550px;
+    margin-left:auto;
+    margin-right:auto;
 }
 
 .fc {
@@ -108,8 +110,4 @@ footer {
 
 .fi {
     text-align: center;
-}
-
-#unityFix {
-    
 }
